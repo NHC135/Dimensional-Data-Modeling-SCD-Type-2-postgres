@@ -2,6 +2,13 @@
 DDL actors_history_scd table
 =============================*/
 
+CREATE TYPE IF NOT EXISTS quality_class AS ENUM (
+    'star',
+    'good',
+    'average',
+    'bad'
+);
+
 CREATE TABLE IF NOT EXISTS actors_history_scd (
 	actorid TEXT NOT NULL,
 	actor TEXT NOT NULL,
@@ -12,4 +19,3 @@ CREATE TABLE IF NOT EXISTS actors_history_scd (
 	current_year INTEGER NOT NULL,
 	PRIMARY KEY(actorid, start_year, end_year)
 ); 
-
