@@ -1,6 +1,10 @@
---===========================================================
---Backfill Query for populating the actors_history_scd table
---============================================================
+--=======================================
+--Backfill Query for actors_history_scd
+--=======================================
+WITH params AS (
+    SELECT 2021 AS up_to_year
+),
+
 WITH with_previous AS (
 	SELECT
 		actorid,
@@ -8,8 +12,8 @@ WITH with_previous AS (
 		current_year, 
 		quality_class, 
 		is_active, 
-	LAG(quality_class, 1) OVER(PARTITION BY actor ORDER BY current_year) as previous_quality_class, 
-	LAG(is_active, 1) OVER(PARTITION BY actor ORDER BY current_year) as previous_is_active
+	LAG(quality_class, 1) OVER(PARTITION BY actorid ORDER BY current_year) as previous_quality_class, 
+	LAG(is_active, 1) OVER(PARTITION BY actorid ORDER BY current_year) as previous_is_active
 	FROM actors
 	WHERE current_year <= 2021
 ), 
@@ -29,7 +33,7 @@ FROM with_previous
 with_streaks AS (
 SELECT
 	*,
-	SUM(change_indicator) OVER(PARTITION BY actor ORDER BY current_year) AS streak_identifier
+	SUM(change_indicator) OVER(PARTITION BY actorid ORDER BY current_year) AS streak_identifier
 FROM with_indicators
 )
 
@@ -41,9 +45,8 @@ SELECT
 	is_active,
 	MIN(current_year) AS start_year, 
 	MAX(current_year) AS end_year,
-	2021 AS current_year
+	param AS current_year
 FROM with_streaks
 GROUP BY actor,actorid, streak_identifier, is_active, quality_class
-ORDER BY actor 
 
 
