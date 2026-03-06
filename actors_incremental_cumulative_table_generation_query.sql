@@ -4,8 +4,8 @@ incremental cumulative table generation query
 
 WITH params AS (
     SELECT
-        2021 AS last_year,
-        2022 AS current_year
+        2020 AS last_year,
+        2021 AS current_year
 ),
 
 last_year AS (
