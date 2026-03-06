@@ -5,17 +5,18 @@ WITH params AS (
     SELECT 2021 AS up_to_year
 ),
 
-WITH with_previous AS (
+with_previous AS (
 	SELECT
-		actorid,
-		actor, 
-		current_year, 
-		quality_class, 
-		is_active, 
-	LAG(quality_class, 1) OVER(PARTITION BY actorid ORDER BY current_year) as previous_quality_class, 
-	LAG(is_active, 1) OVER(PARTITION BY actorid ORDER BY current_year) as previous_is_active
-	FROM actors
-	WHERE current_year <= 2021
+		a.actorid,
+		a.actor, 
+		a.current_year, 
+		a.quality_class, 
+		a.is_active, 
+	LAG(a.quality_class, 1) OVER(PARTITION BY a.actorid ORDER BY a.current_year) as previous_quality_class, 
+	LAG(a.is_active, 1) OVER(PARTITION BY a.actorid ORDER BY a.current_year) as previous_is_active
+	FROM actors a
+	JOIN params p 
+	ON a.current_year <= p.up_to_year
 ), 
 
 with_indicators AS (
@@ -37,16 +38,25 @@ SELECT
 FROM with_indicators
 )
 
-INSERT INTO actors_history_scd
-SELECT 
+INSERT INTO actors_history_scd (
 	actorid,
 	actor,
 	quality_class,
 	is_active,
-	MIN(current_year) AS start_year, 
-	MAX(current_year) AS end_year,
-	param AS current_year
-FROM with_streaks
-GROUP BY actor,actorid, streak_identifier, is_active, quality_class
+	start_year, 
+	end_year,
+	current_year)
+	
+SELECT 
+	s.actorid,
+	s.actor,
+	s.quality_class,
+	s.is_active,
+	MIN(s.current_year) AS start_year, 
+	MAX(s.current_year) AS end_year,
+	p.up_to_year AS current_year
+FROM with_streaks s 
+CROSS JOIN Params P
+GROUP BY s.actor,s.actorid, s.streak_identifier, s.is_active, s.quality_class, p.up_to_year
 
 
