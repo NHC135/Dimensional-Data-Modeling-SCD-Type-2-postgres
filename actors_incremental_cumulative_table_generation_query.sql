@@ -11,9 +11,9 @@ WITH params AS (
 last_year AS (
 	SELECT
 		a.*
-	FROM actors a,
+	FROM actors a
 	JOIN params p
-	WHERE a.current_year = p.last_year
+	ON a.current_year = p.last_year
 ),
 
 current_year AS (
@@ -61,11 +61,19 @@ SELECT
 FROM last_year ly 
 FULL OUTER JOIN current_year cy
 	ON ly.actorid = cy.actorid
-CROSS JOIN params
+CROSS JOIN params p
 )
 
-INSERT INTO actors
-(actor, actorid, films, quality_class, is_active, current_year)
+
+INSERT INTO actors (
+	actor, 
+	actorid, 
+	films, 
+	quality_class, 
+	is_active, 
+	current_year
+)
+
 SELECT 
 	actor, 
 	actorid,
