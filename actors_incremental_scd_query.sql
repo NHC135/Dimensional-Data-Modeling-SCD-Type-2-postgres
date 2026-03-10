@@ -18,6 +18,7 @@ WITH last_year_data AS (
 
 historical_scd AS ( 
 	SELECT 
+		actorid,
 		actor,
 		quality_class,
 		is_active, 
@@ -35,6 +36,7 @@ this_year_data AS (
 
 unchanged_records AS ( 
 	SELECT 
+		ty.actorid,
 		ty.actor, 
 		ty.quality_class, 
 		ty.is_active,
@@ -49,6 +51,7 @@ unchanged_records AS (
 
 changed_records AS (
 SELECT 
+	ty.actorid,
 	ty.actor, 
 	UNNEST(ARRAY[
 		ROW(ly.quality_class, 
@@ -71,6 +74,7 @@ WHERE (ty.quality_class <> ly.quality_class
 
 unnested_changed_records AS ( 
 	SELECT 
+		actorid,
 		actor, 
 		(records::scd_type).quality_class,
 		(records::scd_type).is_active,
@@ -81,6 +85,7 @@ unnested_changed_records AS (
 
 new_records AS (
 	SELECT 
+		ty.actorid,
 		ty.actor,
 		ty.quality_class, 
 		ty.is_active,
